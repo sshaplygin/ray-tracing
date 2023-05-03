@@ -1,8 +1,11 @@
 /target
-/build
+cpp/out/*
 
 # IDE system files
 .idea
 .vscode
 
 *.out
+
+.DS_Store
+*.ppm
