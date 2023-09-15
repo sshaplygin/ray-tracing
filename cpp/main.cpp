@@ -42,7 +42,7 @@ int main() {
         std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
         for (int i = 0; i < image_width; i++) {
             vec3 col(0,0,0);
-            for (int s =0; s < image_size; s++) {
+            for (int s = 0; s < image_size; s++) {
                 float u = float(i) / float(image_width);
                 float v = float(j) / float(image_height);
 
