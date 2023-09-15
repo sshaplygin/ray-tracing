@@ -1,4 +1,6 @@
 
+all: build run
+
 build:
 	g++ -o source main.cpp
 	mkdir -p out
