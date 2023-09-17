@@ -9,6 +9,8 @@ using std::sqrt;
 class sphere: public hitable {
     public:
         sphere(point3 cen, double r): center(cen), radius(r) {};
+        sphere(point3 cen, double r, shared_ptr<material> _material) 
+            : center(cen), radius(r), mat(_material) {}
 
         bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
             vec3 oc = r.origin() - center;
@@ -42,6 +44,7 @@ class sphere: public hitable {
     private:
         point3 center;
         double radius;
+        shared_ptr<material> mat;
 };
 
 #endif

@@ -5,6 +5,7 @@
 
 #include "color.h"
 #include "hitable.h"
+#include "material.h"
 
 #include <iostream>
 
@@ -68,8 +69,16 @@ class camera {
 
             hit_record rec;
             if (world.hit(r, interval(0.001, infinity), rec)) {
-                vec3 direction = rec.normal + random_unit_vector();
-                return 0.5 * ray_color(ray(rec.p, direction), depth - 1, world);
+                ray scattered;
+                color attenuation;
+                std::clog << "mat" << std::endl;
+                if (!rec.mat -> scatter(r, rec, attenuation, scattered)) {
+                    std::clog << "true" << std::endl;
+                    return color(0,0,0);
+                }
+                std::clog << "false" << std::endl;
+
+                return attenuation * ray_color(scattered, depth - 1, world);
             }
 
             vec3 unit_direction = unit_vector(r.direction());
