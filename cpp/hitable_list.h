@@ -22,13 +22,13 @@ class hitable_list: public hitable {
             objects.push_back(obj);
         }
 
-        bool hit(const ray& r , double t_min, double t_max, hit_record& rec) const override{
+        bool hit(const ray& r , interval ray_t, hit_record& rec) const override{
             hit_record temp_rec;
             bool hit_anything = false;
+            auto closest_so_far = ray_t.max;
 
-            auto closest_so_far = t_max;
             for (const auto& obj : objects) {
-                if (!obj->hit(r, t_min, closest_so_far, temp_rec))) {
+                if (!obj->hit(r, interval(ray_t.min, closest_so_far), temp_rec)) {
                     continue;
                 }
 
