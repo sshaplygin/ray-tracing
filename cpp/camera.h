@@ -27,7 +27,6 @@ class camera {
                     for (int sample = 0; sample < samples_per_pixel; ++sample) {
                         ray r = get_ray(i, j);
                         pixel_color += ray_color(r, max_depth, world);
-                        std::clog << "sample" << sample << std::endl << std::flush;
                     }
                     write_color(std::cout, pixel_color, samples_per_pixel);
                 }
