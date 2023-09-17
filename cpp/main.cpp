@@ -59,7 +59,6 @@ int main() {
                 float v = float(j) / float(image_height);
 
                 ray r = cam.get_ray(u, v);
-                vec3 p = r.point_at_parameter(2.0);
                 col += color(r, world);
             }
             
