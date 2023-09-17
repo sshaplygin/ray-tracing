@@ -1,49 +1,65 @@
-#ifndef SPHEREH
-#define SPHEREH
+#ifndef SPHERE_H
+#define SPHERE_H
 
 #include "hitable.h"
+#include "vec3.h"
+
+using std::sqrt;
 
 class sphere: public hitable {
     public:
-        sphere() {}
-        sphere(vec3 cen, float r): center(cen), radius(r) {};
-        virtual bool hit(const ray& r, float tmin, float tmax, hit_record& rec) const;
-        vec3 center;
-        float radius;
+        sphere(point3 cen, double r): center(cen), radius(r) {};
+
+        bool hit(const ray& r, double r_min, double r_max, hit_record& rec) const override {
+            vec3 oc = r.origin() - center;
+
+            double a = dot(r.direction(), r.direction());
+            double b = dot(oc, r.direction());
+            double c = dot(oc, oc) - radius * radius;
+
+            double discriminant = b*b - (a * c);
+            if (discriminant <= 0) {
+                return false;
+            }
+
+            double s_d = sqrt(discriminant);
+            double temp = (-b - s_d)/a;
+            if (temp < r_min && temp > r_max) {
+                rec.t = temp;
+                rec.p = r.at(rec.t);
+                rec.nornal = (rec.p - center) / radius;
+
+                return true;
+            }
+
+            temp = (-b + s_d)/a;
+            if (temp < r_max && temp > r_min) {
+                rec.t = temp;
+                rec.p = r.at(rec.t);
+                rec.nornal = (rec.p - center) / radius;
+
+                return true;
+            }
+
+            return false;
+        };
+        
+    private:
+        point3 center;
+        double radius;
 };
 
-bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const {
-    vec3 oc = r.origin() - center;
-
-    float a = dot(r.direction(), r.direction());
-    float b = dot(oc, r.direction());
-    float c = dot(oc, oc) - radius * radius;
-
-    float discriminant = b*b - (a * c);
-    if (discriminant <= 0) {
-        return false;
+inline vec3 random_in_unit_sphere() {
+    while (true) {
+        auto p = vec3::random(-1, 1);
+        if (p.length_squared() < 1) {
+            return p;
+        }
     }
+}
 
-    float s_d = sqrt(discriminant);
-    float temp = (-b - s_d)/a;
-    if (temp < t_max && temp > t_min) {
-        rec.t = temp;
-        rec.p = r.point_at_parameter(rec.t);
-        rec.nornal = (rec.p - center) / radius;
-
-        return true;
-    }
-
-    temp = (-b + s_d)/a;
-    if (temp < t_max && temp > t_min) {
-        rec.t = temp;
-        rec.p = r.point_at_parameter(rec.t);
-        rec.nornal = (rec.p - center) / radius;
-
-        return true;
-    }
-
-    return false;
+inline vec3 random_unit_vector() {
+    return unit_vector(random_in_unit_sphere());
 }
 
 #endif

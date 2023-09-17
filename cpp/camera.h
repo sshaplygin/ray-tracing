@@ -11,14 +11,17 @@ class camera {
             vertical = vec3(0.0,2.0, 0.0);
             origin = vec3(0.0, 0.0, 0.0);
         }
-        ray get_ray(float u, float v) {
-            return ray(origin, lower_left_corner + u*horizontal + v*vertical - origin);
-        }
+        
 
+    private:
         vec3 origin;
         vec3 lower_left_corner;
         vec3 horizontal;
         vec3 vertical;
+
+        color ray_color(float u, float v) {
+            return color(origin, lower_left_corner + u*horizontal + v*vertical - origin);
+        }
 };
 
 #endif
