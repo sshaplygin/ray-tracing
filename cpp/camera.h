@@ -71,13 +71,9 @@ class camera {
             if (world.hit(r, interval(0.001, infinity), rec)) {
                 ray scattered;
                 color attenuation;
-                std::clog << "mat" << std::endl;
                 if (!rec.mat -> scatter(r, rec, attenuation, scattered)) {
-                    std::clog << "true" << std::endl;
                     return color(0,0,0);
                 }
-                std::clog << "false" << std::endl;
-
                 return attenuation * ray_color(scattered, depth - 1, world);
             }
 
