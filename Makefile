@@ -3,4 +3,4 @@ cpp:
 	$(MAKE) -C ./cpp all
 
 convert:
-	convert output.ppm image.png
+	convert rust.ppm image.png
