@@ -5,6 +5,8 @@
 #include <limits>
 #include <memory>
 #include <random>
+#include <chrono>
+#include <iostream>
 
 using std::shared_ptr;
 using std::make_shared;
@@ -27,6 +29,21 @@ inline double random_double() {
 inline double random_double(double min, double max) {
     return min + (max-min) * random_double();
 }
+
+void write_duration(std::ostream &out, std::chrono::steady_clock::time_point start_time, std::chrono::steady_clock::time_point end_time) {
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+
+    auto mm = std::chrono::duration_cast<std::chrono::minutes>(duration);
+    duration -= mm;
+    auto ss = std::chrono::duration_cast<std::chrono::seconds>(duration);
+    duration -= ss;
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
+
+    out << "Execution time: " <<
+        std::to_string(mm.count()) + "m" +
+        std::to_string(ss.count()) + "s" +
+        std::to_string(ms.count()) + "ms" << '\n';
+};
 
 #include "interval.h"
 #include "ray.h"

@@ -29,6 +29,8 @@ class camera {
 
             std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
+            auto start_time = std::chrono::high_resolution_clock::now();
+
             for (int j = 0; j < image_height; ++j) {
                 std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
                 for (int i = 0; i < image_width; ++i) {
@@ -40,7 +42,11 @@ class camera {
                     write_color(std::cout, pixel_color, samples_per_pixel);
                 }
             }
-            std::clog << "\nDone!" << std::endl;
+            auto end_time = std::chrono::high_resolution_clock::now();
+
+            std::clog << std::endl << "Done!" << std::endl;
+
+            write_duration(std::clog, start_time, end_time);
         }
         
 

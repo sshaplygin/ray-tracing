@@ -11,7 +11,7 @@ int main() {
 
     auto R = cos(pi/4);
 
-  auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
+    auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
     world.add(make_shared<sphere>(point3(0,-1000,0), 1000, ground_material));
 
     for (int a = -11; a < 11; a++) {
@@ -54,8 +54,8 @@ int main() {
     camera cam;
 
     cam.aspect_ratio = 16.0 / 9.0;
-    cam.image_width = 1200;
-    cam.samples_per_pixel = 500;
+    cam.image_width = 100;
+    cam.samples_per_pixel = 10;
     cam.max_depth = 50;
 
     cam.vfov = 20;
@@ -66,5 +66,9 @@ int main() {
     cam.defocus_angel = 0.6;
     cam.focus_dist = 10.0;
 
+    auto time_start = std::chrono::high_resolution_clock::now();
+
     cam.render(world);
+
+    return 0;
 }
