@@ -49,7 +49,6 @@ class camera {
             std::vector<std::shared_future<pixel_result>> m_futures;
 
             auto start_time = std::chrono::high_resolution_clock::now();
-            const unsigned int pixelsCount = image_height * image_width;
 
             for (int j = 0; j < image_height; ++j) {
                 std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
