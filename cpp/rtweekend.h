@@ -45,6 +45,10 @@ void write_duration(std::ostream &out, std::chrono::steady_clock::time_point sta
         std::to_string(ms.count()) + "ms" << '\n';
 };
 
+void write_header(std::ostream &out, int image_width, int image_height) {
+    out << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+}
+
 #include "interval.h"
 #include "ray.h"
 #include "vec3.h"
