@@ -7,7 +7,22 @@
 #include "hitable.h"
 #include "material.h"
 
+#include <mutex>
+#include <future>
 #include <iostream>
+#include <algorithm>
+
+class pixel_result {
+    public:
+        color pixel;
+        int index;
+
+        pixel_result(color pixel, int index) : index(index), pixel(pixel) {}
+};
+
+bool compareByIndex(const std::shared_future<pixel_result>& a, const std::shared_future<pixel_result>& b) {
+    return a.get().index < b.get().index;
+};
 
 class camera {
     public:
@@ -27,21 +42,53 @@ class camera {
         void render(const hitable& world) {
             initialize();
 
-            std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+            write_header(std::cout, image_width, image_height);
+
+            std::mutex mutex;
+            std::condition_variable cvResults;
+            std::vector<std::shared_future<pixel_result>> m_futures;
 
             auto start_time = std::chrono::high_resolution_clock::now();
+            const unsigned int pixelsCount = image_height * image_width;
 
             for (int j = 0; j < image_height; ++j) {
                 std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
                 for (int i = 0; i < image_width; ++i) {
-                    color pixel_color(0,0,0);
-                    for (int sample = 0; sample < samples_per_pixel; ++sample) {
-                        ray r = get_ray(i, j);
-                        pixel_color += ray_color(r, max_depth, world);
+                    auto future = std::async(std::launch::async | std::launch::deferred,
+                    [this, &world, i, j] -> pixel_result {
+                        const unsigned int idx = j * image_width + i; 
+                        color pixel_color(0,0,0);
+                        for (int sample = 0; sample < samples_per_pixel; ++sample) {
+                            ray r = get_ray(i, j);
+                            pixel_color += ray_color(r, max_depth, world);
+                        }
+
+                        return pixel_result(pixel_color, idx);
+                    });
+
+                    {
+                        std::lock_guard<std::mutex> lock(mutex);
+                        m_futures.push_back(std::move(future));
                     }
-                    write_color(std::cout, pixel_color, samples_per_pixel);
                 }
             }
+
+            {
+                std::unique_lock<std::mutex> lock(mutex);
+                
+                cvResults.wait(lock, [this, &m_futures] {
+                    return m_futures.size() == pixel_count;
+                });
+            }
+
+            // TODO: remove sort
+            std::sort(m_futures.begin(), m_futures.end(), compareByIndex);
+
+            for (std::shared_future<pixel_result>& future: m_futures) {
+                pixel_result res = future.get();
+                write_color(std::cout, res.pixel, samples_per_pixel);
+            }
+
             auto end_time = std::chrono::high_resolution_clock::now();
 
             std::clog << std::endl << "Done!" << std::endl;
@@ -51,6 +98,7 @@ class camera {
         
 
     private:
+        int     pixel_count;
         int     image_height;
         point3  center;
         point3  pixel00_loc;
@@ -88,6 +136,8 @@ class camera {
             auto defocus_radius = focus_dist * tan(degrees_to_radians(defocus_angel / 2));
             defocus_disk_u = u * defocus_radius;
             defocus_disk_v = v * defocus_radius;
+
+            pixel_count = image_height * image_width;
         }
 
         color ray_color(const ray &r, int depth, const hitable& world) const {
